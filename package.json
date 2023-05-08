@@ -1,12 +1,12 @@
 {
   "name": "yawebs",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Yet Another Web Storage Library",
   "scripts": {
     "rollup": "rollup -c"
   },
   "keywords": [
-    "Storage"
+    "storage", "localStorage", "sessionStorage"
   ],
   "author": "Mehdi Asadli",
   "license": "ISC",
@@ -24,5 +24,10 @@
   "files": [
     "dist"
   ],
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mehdiasadli/yawebs.git"
+  },
+  "homepage": "https://github.com/mehdiasadli/yawebs"
 }
