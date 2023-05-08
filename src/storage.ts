@@ -1,6 +1,7 @@
 interface GetOptions {
   parse?: boolean
   defaultValue?: any
+  defaultListValue?: any
 }
 interface SetOptions {
   stringify?: boolean
@@ -9,7 +10,8 @@ interface SetOptions {
 
 const DEFAULT_GETOPTIONS = {
   parse: true,
-  defaultValue: null
+  defaultValue: null,
+  defaultListValue: null
 }
 const DEFAULT_SETOPTIONS = {
   stringify: true,
@@ -34,9 +36,25 @@ export class BrowserStorage {
     this.storage.removeItem(key)
   }
 
-  get(key: string, options: GetOptions = DEFAULT_GETOPTIONS) {
-    const item = this._get(key)
-    return item ? (options.parse ? JSON.parse(item) : item) : options.defaultValue
+  private _getList(key: string[], defaultValue: any = null) {
+    return key.map((k) => this._get(k) || defaultValue)
+  }
+  private _removeList(key: string[]) {
+    key.forEach((k) => this._remove(k))
+  }
+
+  get(key: string | string[], options: GetOptions = DEFAULT_GETOPTIONS) {
+    if (typeof key === 'string') {
+      const item = this._get(key)
+      return item ? (options.parse ? JSON.parse(item) : item) : options.defaultValue
+    }
+
+    const items = this._getList(key).filter((item) => item)
+    return items.length === 0
+      ? options.defaultListValue
+      : options.parse
+      ? items.map((item) => JSON.parse(item as string))
+      : items
   }
   set(key: string, value: any, options: SetOptions = DEFAULT_SETOPTIONS) {
     const item = this._get(key)
@@ -47,10 +65,15 @@ export class BrowserStorage {
     this._set(key, value, options.stringify)
     return { success: true, message: 'Item added successfully', data: item }
   }
-  remove(key: string) {
-    const item = this.get(key)
-    this._remove(key)
-    return { success: true, message: 'Item removed successfully', data: item }
+  remove(key: string | string[]) {
+    if (typeof key === 'string') {
+      const item = this.get(key)
+      this._remove(key)
+      return { success: true, message: 'Item removed successfully', data: item }
+    }
+
+    this._removeList(key)
+    return { success: true, message: 'Items removed successfully' }
   }
   clear() {
     this.storage.clear()
